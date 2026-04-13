@@ -27,6 +27,13 @@ class SpritePreview(QMainWindow):
         # Add any other instance variables needed to track information as the program
         # runs here
 
+        self.current_frame = 0
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.updateAnimation)
+        self.animating = False
+        self.fps = 1
+
+
         # Make the GUI in the setupUI method
         self.setupUI()
 
@@ -34,16 +41,94 @@ class SpritePreview(QMainWindow):
     def setupUI(self):
         # An application needs a central widget - often a QFrame
         frame = QFrame()
+        self.setCenterWidget(frame)
 
         # Add a lot of code here to make layouts, more QFrame or QWidgets, and
         # the other components of the program.
         # Create needed connections between the UI components and slot methods
         # you define in this class.
 
-        self.setCentralWidget(frame)
+        self.mainLayout = QVBoxLayout(frame)
+        topSection = QHBoxLayout()
+        self.imageLable = QLabel()
 
+        if self.frames:
+            self.imageLable.setPixmap(self.frames[0])
+
+        self.fpsSlider = QSlider(Qt.Orientation.Horizontal)
+        self.fpsSlider.setMinimum(1)
+        self.fpsSlider.setMaximum(100)
+        self.fpsSlider.setValue(self.fps)
+        self.fpsSlider.setTickPosition(QSlider.TickPosition.TicksLeft)
+        self.fpsSlider.setTickInterval(25)
+
+        #--------------------------------
+
+        topSection.addWidget(self.imageLable)
+        topSection.addWidget(self.fpsSlider)
+
+        #--------------------------------
+
+        self.mainLayout.addLayout(topSection)
+        self.startStop = QPushButton("Start")
+        self.mainLayout.addWidget(self.startStop)
+
+        fpsSection = QHBoxLayout()
+        self.fpsLable = QLabel("FPS")
+        self.fpsVal = QLabel(str(self.fps))
+
+        fpsSection.addWidget(self.fpsLable)
+        fpsSection.addWidget(self.fpsVal)
+
+        self.mainLayout.addLayout(fpsSection)
+
+        #-----------------------------
+
+        menu = self.menuBar()
+        menu.setNativeMenuBar(False)
+        fileMenu = menu.addMenu("File")
+
+        pause = QAction("Pause")
+        pause.triggered.connect(self.stopPlay)
+
+        exit = QAction("Exit")
+        exit.triggered.connect(self.close)
+
+        fileMenu.addAction(pause)
+        fileMenu.addAction(exit)
+
+        self.startStop.clicked.conect(self.togglePlay)
+        self.fpsSlider.valueChanged.connect(self.handleSlider)
 
     # You will need methods in the class to act as slots to connect to signals
+
+    def handle_slider(self):
+        self.fps = self.fpsSlider.value()
+        self.fpsVal.setText((str(self.fps)))
+        if self.animating:
+            self.timer.start(int(1000 / self.fps))
+
+    def startPlay(self):
+        self.animating = True
+        self.startStop.setText("Stop")
+        self.timer.start(int(1000 / self.fps))
+
+    def stopPlay(self):
+        self.animating = False
+        self.startStop.setText("Start")
+        self.timer.stop()
+
+    def togglePlay(self):
+        if self.animating:
+            self.stopPlay()
+        else:
+            self.startPlay()
+
+    def updateAnimation(self):
+        self.current_frame = (self.current_frame + 1) % self.num_frames
+        if self.frames:
+            self.imageLable.setPixmap(self.frames[self.current_frame])
+
 
 
 def main():
