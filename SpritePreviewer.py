@@ -16,7 +16,6 @@ def load_sprite(sprite_folder_name, number_of_frames):
     return frames
 
 class SpritePreview(QMainWindow):
-
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Sprite Animation Preview")
@@ -27,7 +26,7 @@ class SpritePreview(QMainWindow):
         # Add any other instance variables needed to track information as the program
         # runs here
 
-        self.current_frame = 0
+        self.currentFrame = 0
         self.timer = QTimer()
         self.timer.timeout.connect(self.updateAnimation)
         self.animating = False
@@ -41,7 +40,7 @@ class SpritePreview(QMainWindow):
     def setupUI(self):
         # An application needs a central widget - often a QFrame
         frame = QFrame()
-        self.setCenterWidget(frame)
+        self.setCentralWidget(frame)
 
         # Add a lot of code here to make layouts, more QFrame or QWidgets, and
         # the other components of the program.
@@ -51,7 +50,6 @@ class SpritePreview(QMainWindow):
         self.mainLayout = QVBoxLayout(frame)
         topSection = QHBoxLayout()
         self.imageLable = QLabel()
-
         if self.frames:
             self.imageLable.setPixmap(self.frames[0])
 
@@ -88,25 +86,31 @@ class SpritePreview(QMainWindow):
         menu.setNativeMenuBar(False)
         fileMenu = menu.addMenu("File")
 
-        pause = QAction("Pause")
-        pause.triggered.connect(self.stopPlay)
+        pauseAction = QAction("Pause")
+        pauseAction.triggered.connect(self.stopPlay)
 
-        exit = QAction("Exit")
-        exit.triggered.connect(self.close)
+        exitAction = QAction("Exit",self)
+        exitAction.triggered.connect(self.close)
 
-        fileMenu.addAction(pause)
-        fileMenu.addAction(exit)
+        fileMenu.addAction(pauseAction)
+        fileMenu.addAction(exitAction)
 
-        self.startStop.clicked.conect(self.togglePlay)
+        self.startStop.clicked.connect(self.togglePlay)
         self.fpsSlider.valueChanged.connect(self.handleSlider)
 
     # You will need methods in the class to act as slots to connect to signals
 
-    def handle_slider(self):
+    def handleSlider(self):
         self.fps = self.fpsSlider.value()
         self.fpsVal.setText((str(self.fps)))
         if self.animating:
             self.timer.start(int(1000 / self.fps))
+
+    def togglePlay(self):
+        if self.animating:
+            self.stopPlay()
+        else:
+            self.startPlay()
 
     def startPlay(self):
         self.animating = True
@@ -118,16 +122,12 @@ class SpritePreview(QMainWindow):
         self.startStop.setText("Start")
         self.timer.stop()
 
-    def togglePlay(self):
-        if self.animating:
-            self.stopPlay()
-        else:
-            self.startPlay()
+
 
     def updateAnimation(self):
-        self.current_frame = (self.current_frame + 1) % self.num_frames
+        self.currentFrame = (self.currentFrame + 1) % self.num_frames
         if self.frames:
-            self.imageLable.setPixmap(self.frames[self.current_frame])
+            self.imageLable.setPixmap(self.frames[self.currentFrame])
 
 
 
