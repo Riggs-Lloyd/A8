@@ -1,3 +1,7 @@
+#https://github.com/Riggs-Lloyd/A8
+#J. Riggs Lloyd u1550798
+
+
 import math
 
 from PyQt6.QtGui import *
@@ -86,7 +90,7 @@ class SpritePreview(QMainWindow):
         menu.setNativeMenuBar(False)
         fileMenu = menu.addMenu("File")
 
-        pauseAction = QAction("Pause")
+        pauseAction = QAction("Pause", self)
         pauseAction.triggered.connect(self.stopPlay)
 
         exitAction = QAction("Exit",self)
